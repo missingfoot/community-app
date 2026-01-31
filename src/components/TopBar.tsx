@@ -16,7 +16,7 @@ export function TopBar({ title = "Community" }: TopBarProps) {
   }, []);
 
   return (
-    <header className="bg-background border-b border-border">
+    <header className="bg-background">
       <div className="flex items-center justify-between px-4 h-14">
         {/* Left - User Avatar */}
         <div className="w-10 flex justify-start">

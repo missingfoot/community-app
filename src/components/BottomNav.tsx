@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   IconHouse6Fill24,
   IconUsersShakingHandsFill24,
@@ -12,6 +13,7 @@ interface NavItem {
   id: string;
   label: string;
   icon: React.ReactNode;
+  href: string;
 }
 
 const navItems: NavItem[] = [
@@ -19,21 +21,25 @@ const navItems: NavItem[] = [
     id: "home",
     label: "Home",
     icon: <IconHouse6Fill24 />,
+    href: "/",
   },
   {
     id: "community",
     label: "Community",
     icon: <IconUsersShakingHandsFill24 />,
+    href: "/community",
   },
   {
     id: "events",
     label: "Events",
     icon: <IconCalendarFill24 />,
+    href: "/events",
   },
   {
     id: "support",
     label: "Support",
     icon: <IconCircleQuestionFill24 />,
+    href: "/support",
   },
 ];
 
@@ -47,52 +53,54 @@ function BrandLogo({ className }: { className?: string }) {
 }
 
 export function BottomNav() {
-  const [activeTab, setActiveTab] = useState("home");
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <nav className="mb-6 bg-background border-t border-border">
       <div className="flex items-center justify-around h-16">
         {navItems.slice(0, 2).map((item) => (
-          <button
+          <Link
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            href={item.href}
             className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-              activeTab === item.id
+              isActive(item.href)
                 ? "text-accent"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {item.icon}
             <span className="text-xs mt-1">{item.label}</span>
-          </button>
+          </Link>
         ))}
 
         {/* Center Menu Button */}
         <button
-          onClick={() => setActiveTab("menu")}
-          className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-            activeTab === "menu"
-              ? "text-accent"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className="flex flex-col items-center justify-center w-full h-full transition-colors text-muted-foreground hover:text-foreground"
         >
           <BrandLogo className="h-6 w-auto" />
           <span className="text-xs mt-1">Menu</span>
         </button>
 
         {navItems.slice(2).map((item) => (
-          <button
+          <Link
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            href={item.href}
             className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-              activeTab === item.id
+              isActive(item.href)
                 ? "text-accent"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {item.icon}
             <span className="text-xs mt-1">{item.label}</span>
-          </button>
+          </Link>
         ))}
       </div>
     </nav>

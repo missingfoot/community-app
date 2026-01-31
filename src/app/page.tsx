@@ -6,6 +6,33 @@ import { BottomNav } from "@/components/BottomNav";
 import { IconHeartOutline24, IconMessageOutline24 } from "nucleo-core-outline-24";
 import { IconHeartFill24, IconPinTackFill24 } from "nucleo-core-fill-24";
 
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function getAvatarColor(name: string): string {
+  // Generate a hash from the name
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  // Use hash to generate HSL values
+  // Hue: full range (0-360)
+  const hue = Math.abs(hash) % 360;
+  // Saturation: 25-40% for muted look
+  const saturation = 25 + (Math.abs(hash >> 8) % 15);
+  // Lightness: 82-90% for light backgrounds
+  const lightness = 82 + (Math.abs(hash >> 16) % 8);
+
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
 function BrandLogo({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 53 62" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -19,7 +46,6 @@ const initialFeedItems = [
   {
     id: 0,
     author: "Building Announcement",
-    avatar: "",
     time: "30m ago",
     content: "The elevator in the east wing is currently out of service due to a mechanical issue. Engineers have been called and we expect it to be fixed by tomorrow morning. Please use the west wing elevator or stairs in the meantime. We apologize for the inconvenience.",
     likes: 2,
@@ -29,7 +55,7 @@ const initialFeedItems = [
   {
     id: 1,
     author: "Rachel Torres",
-    avatar: "RT",
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
     time: "1h ago",
     content: "Hey everyone! Reminder that our monthly rooftop BBQ is this Saturday at 5pm. We'll have the grill going and drinks provided. Bring a side dish to share if you can! 🍔",
     likes: 34,
@@ -39,7 +65,6 @@ const initialFeedItems = [
   {
     id: 2,
     author: "Tom Bradley",
-    avatar: "TB",
     time: "3h ago",
     content: "Anyone up for a coffee run? Heading to Ground Floor in 15 mins. Happy to grab orders for anyone on floors 3-5!",
     likes: 8,
@@ -48,7 +73,7 @@ const initialFeedItems = [
   {
     id: 3,
     author: "Maya Patel",
-    avatar: "MP",
+    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
     time: "5h ago",
     content: "The coworking space on 2nd floor is looking great after the refresh! Love the new plants and the standing desks. Thanks to the team for listening to our feedback.",
     likes: 52,
@@ -57,7 +82,7 @@ const initialFeedItems = [
   {
     id: 4,
     author: "Alex Kim",
-    avatar: "AK",
+    avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
     time: "7h ago",
     content: "Quick heads up - I'm hosting a dinner party in the community kitchen tonight at 7pm. Making Korean BBQ! Drop by if you're around, plenty of food for everyone.",
     likes: 41,
@@ -66,7 +91,6 @@ const initialFeedItems = [
   {
     id: 5,
     author: "Jordan Mills",
-    avatar: "JM",
     time: "9h ago",
     content: "Lost my airpods somewhere between the gym and the 4th floor lounge. Black case with a small scratch. Let me know if anyone finds them! 🙏",
     likes: 5,
@@ -75,7 +99,7 @@ const initialFeedItems = [
   {
     id: 6,
     author: "Nina Okonkwo",
-    avatar: "NO",
+    avatarUrl: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop&crop=face",
     time: "12h ago",
     content: "Just moved into unit 312! Super excited to be part of this community. Would love to meet neighbors - feel free to say hi if you see me around!",
     likes: 67,
@@ -89,18 +113,19 @@ export default function Home() {
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>(
     Object.fromEntries(initialFeedItems.map((item) => [item.id, item.likes]))
   );
-  const [newPostText, setNewPostText] = useState("");
+  const [composerFocused, setComposerFocused] = useState(false);
+  const [hasText, setHasText] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handlePost = () => {
-    if (!newPostText.trim()) return;
+    const content = textareaRef.current?.value.trim();
+    if (!content) return;
 
     const newPost = {
       id: Date.now(),
       author: "James Sparkes",
-      avatar: "JS",
       time: "Just now",
-      content: newPostText,
+      content,
       likes: 0,
       comments: 0,
     };
@@ -110,8 +135,9 @@ export default function Home() {
     const unpinnedPosts = posts.filter((p) => !p.isBuilding);
     setPosts([...pinnedPosts, newPost, ...unpinnedPosts]);
     setLikeCounts((counts) => ({ ...counts, [newPost.id]: 0 }));
-    setNewPostText("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
+    if (textareaRef.current) textareaRef.current.value = "";
+    setHasText(false);
+    setComposerFocused(false);
   };
 
   const toggleLike = (postId: number) => {
@@ -130,62 +156,67 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <TopBar title="Home" />
+      <TopBar title="Announcements" />
+      <div className="border-b border-border" />
 
       <main className="flex-1 overflow-auto pb-4">
         {/* Post Something Bar */}
         <div className="px-4 py-3 border-b border-border">
+          {/* Row 1: Avatar and Text */}
           <div className="flex gap-3">
-            {/* Col 1: Avatar - top aligned */}
-            <div className="flex flex-col justify-start">
-              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground text-sm font-medium">
-                JS
-              </div>
+            {/* Col 1: Avatar */}
+            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground text-sm font-medium flex-shrink-0">
+              JS
             </div>
 
-            {/* Col 2: Textarea - centered */}
-            <div className="flex-1 flex flex-col justify-center">
+            {/* Col 2: Text with top padding to center first line with avatar */}
+            <div className="flex-1 pt-2 min-w-0">
               <textarea
                 ref={textareaRef}
-                value={newPostText}
+                onFocus={() => setComposerFocused(true)}
                 onChange={(e) => {
-                  setNewPostText(e.target.value);
-                  e.target.style.height = "auto";
-                  e.target.style.height = e.target.scrollHeight + "px";
+                  const newHasText = e.target.value.trim().length > 0;
+                  if (newHasText !== hasText) setHasText(newHasText);
                 }}
-                placeholder="Post something..."
+                placeholder="Post an announcement..."
                 rows={1}
-                className="bg-transparent text-foreground placeholder:text-muted-foreground resize-none outline-none focus:outline-none focus:ring-0 border-none"
+                className="w-full bg-transparent text-foreground placeholder:text-muted-foreground resize-none outline-none focus:outline-none focus:ring-0 border-none leading-6"
+                style={{ fieldSizing: "content", maxWidth: "100%" } as React.CSSProperties}
               />
             </div>
-
-            {/* Col 3: Buttons - bottom aligned */}
-            {newPostText.trim() && (
-              <div className="flex flex-col justify-end gap-2">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setNewPostText("");
-                      if (textareaRef.current) textareaRef.current.style.height = "auto";
-                    }}
-                    className="w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={handlePost}
-                    className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
+
+          {/* Row 2: Cancel/Post buttons - aligned right */}
+          {(composerFocused || hasText) && (
+            <div className="flex items-center justify-end mt-3 ml-[52px]">
+              <div className="flex gap-2 items-center">
+                {/* Cancel button */}
+                <button
+                  onClick={() => {
+                    if (textareaRef.current) textareaRef.current.value = "";
+                    setHasText(false);
+                    setComposerFocused(false);
+                  }}
+                  className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                {/* Post button */}
+                <button
+                  onClick={handlePost}
+                  disabled={!hasText}
+                  className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Feed */}
@@ -198,9 +229,18 @@ export default function Home() {
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                     <BrandLogo className="w-6 h-6 text-primary-foreground" />
                   </div>
+                ) : item.avatarUrl ? (
+                  <img
+                    src={item.avatarUrl}
+                    alt={item.author}
+                    className="flex-shrink-0 w-10 h-10 rounded-full object-cover"
+                  />
                 ) : (
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground text-sm font-medium">
-                    {item.avatar}
+                  <div
+                    className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium"
+                    style={{ backgroundColor: getAvatarColor(item.author), color: '#4a4a4a' }}
+                  >
+                    {getInitials(item.author)}
                   </div>
                 )}
 
