@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
+/* Circular Font */
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-Book.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-BookItalic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular';
+  src: url('/fonts/circular/ttf/Circular-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light Mode - Color Pairs */
+  --color-background: #FFFFFF;
+  --color-foreground: #272422;
+
+  --color-primary: #272422;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-secondary: #F0EEE4;
+  --color-secondary-foreground: #272422;
+
+  --color-muted: #F0EEE4;
+  --color-muted-foreground: #78716c;
+
+  --color-accent: #272422;
+  --color-accent-foreground: #FFFFFF;
+
+  --color-border: #E5E2DA;
+}
+
+.dark {
+  /* Dark Mode - Color Pairs (swapped) */
+  --color-background: #272422;
+  --color-foreground: #F0EEE4;
+
+  --color-primary: #F0EEE4;
+  --color-primary-foreground: #272422;
+
+  --color-secondary: #3D3A37;
+  --color-secondary-foreground: #F0EEE4;
+
+  --color-muted: #3D3A37;
+  --color-muted-foreground: #a8a29e;
+
+  --color-accent: #F0EEE4;
+  --color-accent-foreground: #272422;
+
+  --color-border: #4A4744;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: 'Circular', system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  --color-border: var(--color-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Circular', system-ui, sans-serif;
 }
