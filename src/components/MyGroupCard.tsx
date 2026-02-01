@@ -30,11 +30,19 @@ export function MyGroupCard({ group, onClick }: MyGroupCardProps) {
       className="w-full flex items-center gap-4 p-4 border-b border-border text-left hover:bg-secondary/50 transition-colors"
     >
       <div className="relative">
-        <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-secondary-foreground">
-          {getCategoryIcon(group.category)}
-        </div>
+        {group.coverImage ? (
+          <img
+            src={group.coverImage}
+            alt={group.name}
+            className="w-12 h-12 rounded-xl object-cover"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-secondary-foreground">
+            {getCategoryIcon(group.category)}
+          </div>
+        )}
         {group.hasUnread && (
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full ring-3 ring-background" />
         )}
       </div>
       <div className="flex-1 min-w-0">

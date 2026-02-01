@@ -86,23 +86,23 @@
 }
 
 .dark {
-  /* Dark Mode - Color Pairs (swapped) */
-  --color-background: #272422;
+  /* Dark Mode - Deeper background, charcoal/cream swap restored */
+  --color-background: #1A1816;
   --color-foreground: #F0EEE4;
 
   --color-primary: #F0EEE4;
   --color-primary-foreground: #272422;
 
-  --color-secondary: #3D3A37;
+  --color-secondary: #302D2A;
   --color-secondary-foreground: #F0EEE4;
 
-  --color-muted: #3D3A37;
+  --color-muted: #302D2A;
   --color-muted-foreground: #a8a29e;
 
   --color-accent: #F0EEE4;
   --color-accent-foreground: #272422;
 
-  --color-border: #4A4744;
+  --color-border: #3D3A37;
 }
 
 @theme inline {

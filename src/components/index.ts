@@ -5,3 +5,4 @@ export { ThemeProvider } from "./ThemeProvider";
 export { TabNav } from "./TabNav";
 export { GroupCard } from "./GroupCard";
 export { MyGroupCard } from "./MyGroupCard";
+export { PostComposer } from "./PostComposer";

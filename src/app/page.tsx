@@ -257,7 +257,7 @@ export default function Home() {
                         </div>
                       )}
                       {item.isBuilding && (
-                        <IconPinTackFill24 className="w-4 h-4 text-muted-foreground" />
+                        <IconPinTackFill24 className="w-4 h-4 text-red-500" />
                       )}
                     </div>
                     <span className="text-sm text-muted-foreground">{item.time}</span>

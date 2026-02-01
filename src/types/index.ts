@@ -15,6 +15,7 @@ export interface Group {
   category: GroupCategory;
   memberCount: number;
   isPrivate: boolean;
+  coverImage?: string;
 }
 
 export interface MyGroup extends Group {

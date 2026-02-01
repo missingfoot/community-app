@@ -36,9 +36,17 @@ interface GroupCardProps {
 export function GroupCard({ group, onJoin }: GroupCardProps) {
   return (
     <div className="flex items-center gap-4 p-4 border-b border-border">
-      <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-secondary-foreground">
-        {getCategoryIcon(group.category)}
-      </div>
+      {group.coverImage ? (
+        <img
+          src={group.coverImage}
+          alt={group.name}
+          className="w-12 h-12 rounded-xl object-cover"
+        />
+      ) : (
+        <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-secondary-foreground">
+          {getCategoryIcon(group.category)}
+        </div>
+      )}
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-foreground truncate">{group.name}</h3>
         <div className="flex items-center gap-2 mt-0.5">

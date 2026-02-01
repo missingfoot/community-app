@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { TopBar, BottomNav, TabNav, GroupCard, MyGroupCard } from "@/components";
 import { Group, MyGroup } from "@/types";
 import {
@@ -51,75 +52,83 @@ function BrandLogo({ className }: { className?: string }) {
 // Sample groups data
 const sampleGroups: Group[] = [
   {
-    id: "1",
+    id: "847291",
     name: "Rooftop BBQ Crew",
     description: "Monthly rooftop gatherings and grilling sessions",
     category: "social",
     memberCount: 47,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=100&h=100&fit=crop",
   },
   {
-    id: "2",
+    id: "293847",
     name: "Morning Yoga",
     description: "Daily 6AM yoga sessions in the wellness room",
     category: "fitness",
     memberCount: 23,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=100&h=100&fit=crop",
   },
   {
-    id: "3",
+    id: "582916",
     name: "Remote Workers Network",
     description: "Coworking meetups and productivity tips",
     category: "professional",
     memberCount: 89,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=100&h=100&fit=crop",
   },
   {
-    id: "4",
+    id: "719384",
     name: "Board Game Nights",
     description: "Weekly game nights every Thursday",
     category: "hobbies",
     memberCount: 31,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1611371805429-8b5c1b2c34ba?w=100&h=100&fit=crop",
   },
   {
-    id: "5",
+    id: "384726",
     name: "Community Kitchen Club",
     description: "Share recipes and host communal dinners",
     category: "food",
     memberCount: 56,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=100&h=100&fit=crop",
   },
   {
-    id: "6",
+    id: "928374",
     name: "Meditation & Mindfulness",
     description: "Weekly guided meditation sessions",
     category: "wellness",
     memberCount: 18,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop",
   },
 ];
 
 // Sample user's groups
 const sampleMyGroups: MyGroup[] = [
   {
-    id: "1",
+    id: "847291",
     name: "Rooftop BBQ Crew",
     description: "Monthly rooftop gatherings and grilling sessions",
     category: "social",
     memberCount: 47,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=100&h=100&fit=crop",
     role: "manager",
     joinedAt: "2024-01-15",
     hasUnread: true,
   },
   {
-    id: "3",
+    id: "582916",
     name: "Remote Workers Network",
     description: "Coworking meetups and productivity tips",
     category: "professional",
     memberCount: 89,
     isPrivate: false,
+    coverImage: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=100&h=100&fit=crop",
     role: "member",
     joinedAt: "2024-02-10",
     hasUnread: false,
@@ -282,8 +291,32 @@ const initialFeedItems: FeedItem[] = [
 ];
 
 export default function CommunityPage() {
-  const [activeTab, setActiveTab] = useState("feed");
+  const router = useRouter();
+  const params = useParams();
+  const tabParam = params.tab as string[] | undefined;
+  const activeTab = tabParam?.[0] || "all";
+
+  const handleTabChange = (newTab: string) => {
+    router.push(`/community/${newTab}`, { scroll: false });
+  };
+
   const [posts, setPosts] = useState(initialFeedItems);
+
+  // Filter posts based on active tab
+  const filteredPosts = (() => {
+    switch (activeTab) {
+      case "all":
+        return posts;
+      case "posts":
+        return posts.filter((item) => !item.poll && !item.event);
+      case "meetups":
+        return posts.filter((item) => item.event);
+      case "polls":
+        return posts.filter((item) => item.poll);
+      default:
+        return posts;
+    }
+  })();
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>(
     Object.fromEntries(initialFeedItems.map((item) => [item.id, item.likes]))
@@ -398,16 +431,18 @@ export default function CommunityPage() {
 
       <TabNav
         tabs={[
-          { id: "feed", label: "Feed" },
-          { id: "groups", label: "Groups" },
-          { id: "my-groups", label: "My Groups", count: sampleMyGroups.length },
+          { id: "all", label: "All" },
+          { id: "posts", label: "Posts" },
+          { id: "meetups", label: "Meetups" },
+          { id: "polls", label: "Polls" },
         ]}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
       <main className="flex-1 overflow-auto pb-4">
-        {activeTab === "feed" && (
+        {/* Feed tabs: all, posts, meetups, polls */}
+        {["all", "posts", "meetups", "polls"].includes(activeTab) && (
           <>
             {/* Post composer */}
             <div className="px-4 py-3 border-b border-border">
@@ -507,7 +542,7 @@ export default function CommunityPage() {
 
             {/* Feed */}
             <div className="divide-y divide-border">
-              {posts.map((item) => (
+              {filteredPosts.map((item) => (
                 <article key={item.id} className="px-4 py-4">
                   <div className="flex items-start gap-3">
                     {item.avatarUrl ? (
@@ -689,7 +724,7 @@ export default function CommunityPage() {
                   <MyGroupCard
                     key={group.id}
                     group={group}
-                    onClick={(id) => console.log("Open group:", id)}
+                    onClick={(id) => router.push(`/groups/${id}`)}
                   />
                 ))}
               </>
@@ -705,7 +740,7 @@ export default function CommunityPage() {
                   <MyGroupCard
                     key={group.id}
                     group={group}
-                    onClick={(id) => console.log("Open group:", id)}
+                    onClick={(id) => router.push(`/groups/${id}`)}
                   />
                 ))}
               </>
@@ -714,7 +749,7 @@ export default function CommunityPage() {
               <div className="px-4 py-12 text-center">
                 <p className="text-muted-foreground">You haven&apos;t joined any groups yet.</p>
                 <button
-                  onClick={() => setActiveTab("groups")}
+                  onClick={() => handleTabChange("groups")}
                   className="mt-2 text-accent hover:underline"
                 >
                   Browse groups to join
